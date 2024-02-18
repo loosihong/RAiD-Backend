@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model CartItem {
+  id Int @id @default(autoincrement())
+  userId Int
+  productId Int
+  quantity Int
+  purchaseItemId Int? @unique
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  purchaseItem PurchaseItem? @relation(fields: [purchaseItemId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(200)
+  skuCode String? @db.VarChar(50)
+  unitOfMeasureId Int
+  unitPrice Decimal @db.Decimal(17,2) @default(0)
+  storeId Int
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)  
+  unitOfMeasure UnitOfMeasure @relation(fields: [unitOfMeasureId], references: [id], onDelete: Restrict)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  productDescription ProductDescription?
+  productStock ProductStock?
+  productBatches ProductBatch[]
+  cartItems CartItem[]
+  purchaseItems PurchaseItem[]
+}
+
+model ProductBatch {
+  id Int @id @default(autoincrement())
+  productId Int
+  batchNumber String @db.VarChar(100) @default("")
+  quantityTotal Int
+  quantityLeft Int
+  arrivedOn DateTime @default(now())
+  expiredDate DateTime?
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index(fields: [productId, expiredDate])
+}
+
+model ProductDescription {
+  productId Int @unique
+  description String? @db.VarChar(10000)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductStock {
+  productId Int @unique
+  quantityAvailable Int @default(0)
+  quantitySold Int @default(0)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model Purchase {
+  id Int @id @default(autoincrement())
+  userId Int
+  storeId Int
+  totalPrice Decimal @db.Decimal(17,2) @default(0)
+  purchasedOn DateTime @default(now())
+  estimatedDeliveryDate DateTime
+  deliveredDateTime DateTime?
+  receivedDateTime DateTime?
+  purchaseStatusCode String @db.VarChar(10)
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  purchaseStatus PurchaseStatus @relation(fields: [purchaseStatusCode], references: [code], onDelete: Restrict)
+  purchaseItems PurchaseItem[]
+
+  @@index([userId])
+}
+
+model PurchaseItem {
+  id Int @id @default(autoincrement())
+  purchaseId Int
+  productId Int
+  quantity Int
+  unitPrice Decimal @db.Decimal(17,2) @default(0)
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  cartItem CartItem?
+
+  @@index([purchaseId])
+}
+
+model PurchaseStatus {
+  code String @db.VarChar(10) @id
+  name String @db.VarChar(200)
+  isEndState Boolean @default(false)
+  purchases Purchase[]
+}
+
+model Store {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(200) @unique
+  userId Int @unique
+  deliveryLeadDay Int @default(1)
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  products Product[]
+  purchases Purchase[]
+
+  @@index([userId])
+}
+
+model UnitOfMeasure {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(200) @unique
+  shortName String @db.VarChar(10) @unique
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  products Product[] 
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  loginName String @db.VarChar(100) @unique
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  userSessions UserSession[]
+  cartItems CartItem[]
+  purchases Purchase[]
+  store Store?
+}
+
+model UserSession {
+  id String @id @default(uuid())
+  userId Int
+  expiredOn DateTime
+  createdOn DateTime @default(now())
+  createdByUserId Int? @default(0)
+  modifiedOn DateTime @default(now())
+  modifiedByUserId Int? @default(0)
+  versionNumber Int @default(0)
+  isDeleted Boolean @default(false)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
