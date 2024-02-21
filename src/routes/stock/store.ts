@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import createError from "http-errors";
-import { PrismaClient, Prisma, Product, Store } from "@prisma/client";
+import { PrismaClient, Prisma, Store } from "@prisma/client";
 import { apiAuthentication } from "../../utils/authentication";
 import { INTEGER_MAX } from "../../utils/commonUtil";
 import  "../../utils/string.extension";
@@ -11,6 +11,76 @@ import * as PurchaseContract from "../../../contract/customer/purchase";
 
 export const storeRouter: Router = Router();
 const prisma: PrismaClient = new PrismaClient();
+
+/*
+    GetUser: Get profile of a user's store.
+    Params: sessionId
+    Response: GetStoreApiResponseBody
+*/
+storeRouter.get("/:sessionId/current", apiAuthentication, async (request: Request, response: Response, nextFunction: NextFunction) => {
+    const { sessionId } = request.params;
+
+    //Validate params
+    if(!String.validateLength(sessionId, 36)) {
+        nextFunction(createError(400));
+    }
+
+    // Result
+    let userSessionResult: UserSessionGetResult | null = null;
+    
+    try {
+        userSessionResult = await prisma.userSession.findFirst({
+            where: {
+                id: sessionId,
+                isDeleted: false
+            },
+            include: {
+                user: {
+                    include: {
+                        store: true
+                    }
+                },
+
+            }
+        });
+
+        if(userSessionResult === null || userSessionResult.user.store == null) {
+            nextFunction(createError(404));
+            return;
+        }
+    }
+    catch {
+        nextFunction(createError(500));
+        return;
+    }
+
+    if(userSessionResult.userId !== request.userId) {
+        nextFunction(createError(401));
+        return;
+    }
+
+    if(userSessionResult === null) {
+        response.status(404).end();
+        return;
+    }
+    
+    response.json(new StoreContract.GetStoreApiResponseBody(
+        userSessionResult.user.store.id,
+        userSessionResult.user.store.name,
+        userSessionResult.user.store.deliveryLeadDay,
+        userSessionResult.user.store.versionNumber
+    ));
+});
+
+type UserSessionGetResult = Prisma.UserSessionGetPayload<{
+    include: {
+        user: {
+            include: {
+                store: true
+            }
+        }
+    }
+}>;
 
 /*
     CreateStore: Create user's store.

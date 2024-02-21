@@ -12,7 +12,7 @@ async function main() {
     });
     await prisma.unitOfMeasure.createMany({
         data: [
-            { name: "Unit", shortName: "" },
+            { name: "Unit", shortName: "unit" },
             { name: "Gram", shortName: "g" },
             { name: "Millilitre", shortName: "ml" }
         ]
@@ -29,6 +29,20 @@ async function main() {
             { code: "C", name: "Cancelled" }
         ]
     });
+    const user = await prisma.user.findFirst({
+        where: {
+            loginName: "jenny"
+        }
+    });
+    if (user != null) {
+        await prisma.store.create({
+            data: {
+                userId: user.id,
+                name: "Jenny's Store",
+                deliveryLeadDay: 7
+            }
+        });
+    }
 }
 main()
     .then(async () => {

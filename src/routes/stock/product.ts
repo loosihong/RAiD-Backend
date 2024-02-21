@@ -187,7 +187,7 @@ productRouter.get("/:id", apiAuthentication, async (request: Request, response: 
     
     response.json(new ProductContract.GetProductApiResponseBody(
         productResult.id,
-        productResult.skuCode || "",
+        productResult.name || "",
         productResult.productDescription?.description || "",
         productResult.unitOfMeasure.shortName,
         Number(productResult.unitPrice),

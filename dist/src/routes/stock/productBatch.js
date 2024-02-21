@@ -231,6 +231,7 @@ exports.productBatchRouter.post("/product-batches", authentication_1.apiAuthenti
             prisma.productBatch.create({
                 data: {
                     productId: requestBody.productId,
+                    batchNumber: requestBody.batchNumber,
                     quantityTotal: requestBody.quantityTotal,
                     quantityLeft: requestBody.quantityLeft,
                     arrivedOn: arrivedOnValue,
@@ -338,6 +339,7 @@ exports.productBatchRouter.put("/product-batches", authentication_1.apiAuthentic
                     versionNumber: requestBody.versionNumber
                 },
                 data: {
+                    batchNumber: requestBody.batchNumber,
                     quantityTotal: requestBody.quantityTotal,
                     quantityLeft: requestBody.quantityLeft,
                     arrivedOn: arrivedOnValue,
@@ -361,7 +363,7 @@ exports.productBatchRouter.put("/product-batches", authentication_1.apiAuthentic
             })
         ]);
     }
-    catch {
+    catch (error) {
         nextFunction((0, http_errors_1.default)(500));
         return;
     }

@@ -173,7 +173,7 @@ exports.productRouter.get("/:id", authentication_1.apiAuthentication, async (req
         response.status(404).end();
         return;
     }
-    response.json(new ProductContract.GetProductApiResponseBody(productResult.id, productResult.skuCode || "", productResult.productDescription?.description || "", productResult.unitOfMeasure.shortName, Number(productResult.unitPrice), productResult.store.name, Number(productResult.productStock?.quantityAvailable) || 0, Number(productResult.productStock?.quantitySold) || 0));
+    response.json(new ProductContract.GetProductApiResponseBody(productResult.id, productResult.name || "", productResult.productDescription?.description || "", productResult.unitOfMeasure.shortName, Number(productResult.unitPrice), productResult.store.name, Number(productResult.productStock?.quantityAvailable) || 0, Number(productResult.productStock?.quantitySold) || 0));
 });
 /*
     CreateProduct: Create a new product.

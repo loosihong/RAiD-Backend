@@ -1,17 +1,13 @@
 declare global {
     interface Date {
-        toDate(): Date;
+        toStringInDate(): string;
         addDays(days: number, useThis?: boolean): Date;
         toDateType(): void;
     }
 }
 
-Date.prototype.toDate = function(): Date {
-    let date: Date = this;
-
-    date.toISOString().slice(0, 10);
-
-    return date;
+Date.prototype.toStringInDate = function(): string {
+    return this.toISOString().slice(0, 10);
 };
 
 Date.prototype.addDays = function (days: number): Date {

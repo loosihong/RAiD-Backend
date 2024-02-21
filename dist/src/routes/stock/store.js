@@ -34,10 +34,57 @@ const authentication_1 = require("../../utils/authentication");
 const commonUtil_1 = require("../../utils/commonUtil");
 require("../../utils/string.extension");
 const CommonContract = __importStar(require("../../../contract/common"));
+const StoreContract = __importStar(require("../../../contract/stock/store"));
 const ProductContract = __importStar(require("../../../contract/stock/product"));
 const PurchaseContract = __importStar(require("../../../contract/customer/purchase"));
 exports.storeRouter = (0, express_1.Router)();
 const prisma = new client_1.PrismaClient();
+/*
+    GetUser: Get profile of a user's store.
+    Params: sessionId
+    Response: GetStoreApiResponseBody
+*/
+exports.storeRouter.get("/:sessionId/current", authentication_1.apiAuthentication, async (request, response, nextFunction) => {
+    const { sessionId } = request.params;
+    //Validate params
+    if (!String.validateLength(sessionId, 36)) {
+        nextFunction((0, http_errors_1.default)(400));
+    }
+    // Result
+    let userSessionResult = null;
+    try {
+        userSessionResult = await prisma.userSession.findFirst({
+            where: {
+                id: sessionId,
+                isDeleted: false
+            },
+            include: {
+                user: {
+                    include: {
+                        store: true
+                    }
+                },
+            }
+        });
+        if (userSessionResult === null || userSessionResult.user.store == null) {
+            nextFunction((0, http_errors_1.default)(404));
+            return;
+        }
+    }
+    catch {
+        nextFunction((0, http_errors_1.default)(500));
+        return;
+    }
+    if (userSessionResult.userId !== request.userId) {
+        nextFunction((0, http_errors_1.default)(401));
+        return;
+    }
+    if (userSessionResult === null) {
+        response.status(404).end();
+        return;
+    }
+    response.json(new StoreContract.GetStoreApiResponseBody(userSessionResult.user.store.id, userSessionResult.user.store.name, userSessionResult.user.store.deliveryLeadDay, userSessionResult.user.store.versionNumber));
+});
 /*
     CreateStore: Create user's store.
     Request: SaveStoreApiRequestBody

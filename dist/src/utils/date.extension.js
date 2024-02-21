@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-Date.prototype.toDate = function () {
-    let date = this;
-    date.toISOString().slice(0, 10);
-    return date;
+Date.prototype.toStringInDate = function () {
+    return this.toISOString().slice(0, 10);
 };
 Date.prototype.addDays = function (days) {
     let date = this;

@@ -12,7 +12,7 @@ async function main() {
     });
     await prisma.unitOfMeasure.createMany({
         data: [
-            { name: "Unit", shortName: "" },
+            { name: "Unit", shortName: "unit" },
             { name: "Gram", shortName: "g" },
             { name: "Millilitre", shortName: "ml" }
         ]
