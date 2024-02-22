@@ -30,21 +30,21 @@ async function main() {
         ]
     });
 
-    const user: User | null  = await prisma.user.findFirst({
-        where: {
-            loginName: "jenny"
-        }
-    });
+    // const user: User | null  = await prisma.user.findFirst({
+    //     where: {
+    //         loginName: "jenny"
+    //     }
+    // });
 
-    if(user != null) {
-        await prisma.store.create({
-            data: {
-                userId: user.id,
-                name: "Jenny's Store",
-                deliveryLeadDay: 7
-            }
-        });
-    }
+    // if(user != null) {
+    //     await prisma.store.create({
+    //         data: {
+    //             userId: user.id,
+    //             name: "Jenny's Store",
+    //             deliveryLeadDay: 7
+    //         }
+    //     });
+    // }
 }
 main()
     .then(async () => {
