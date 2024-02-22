@@ -24,9 +24,9 @@ async function main() {
             { code: "OC", name: "Order Confirmed" },
             { code: "OD", name: "On Delivery" },
             { code: "D", name: "Delivered" },
-            { code: "R", name: "Received" },
+            { code: "R", name: "Received", isEndState: true },
             { code: "ID", name: "In Dispute" },
-            { code: "C", name: "Cancelled" }
+            { code: "C", name: "Cancelled", isEndState: true }
         ]
     });
 

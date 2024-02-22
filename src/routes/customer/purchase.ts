@@ -437,7 +437,9 @@ purchaseRouter.put("/confirm", apiAuthentication, async (request: Request, respo
     {
         const batchResponse: Prisma.BatchPayload = await prisma.purchase.updateMany({
             where: {
-                userId: request.userId,
+                store: {
+                    userId : request.userId
+                },
                 purchaseStatusCode: "O",
                 isDeleted: false,
                 id: {
@@ -540,7 +542,9 @@ purchaseRouter.put("/send", apiAuthentication, async (request: Request, response
     {
         const batchResponse: Prisma.BatchPayload = await prisma.purchase.updateMany({
             where: {
-                userId: request.userId,
+                store: {
+                    userId : request.userId
+                },
                 purchaseStatusCode: "OC",
                 isDeleted: false,
                 id: {
@@ -642,7 +646,9 @@ purchaseRouter.put("/delivered", apiAuthentication, async (request: Request, res
     {
         const batchResponse: Prisma.BatchPayload = await prisma.purchase.updateMany({
             where: {
-                userId: request.userId,
+                store: {
+                    userId : request.userId
+                },
                 purchaseStatusCode: "OD",
                 isDeleted: false,
                 id: {
